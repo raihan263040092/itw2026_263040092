@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latihan 1 - Typhograpy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+ 
+  <style>
+    h1{
+      font-family:"Playfair Display", serif;
+      font-size: 40px;
+    }
+
+    span{
+      font-style: italic;
+    }
+
+    p{
+      font-family: Poppins, sans-serif;
+      line-height: 1.6em;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Beauty of <span>Morning Walk</span></h1>
+  <p>Berjalan kaki di pagi hari adalah salah satu cara terbaik untuk memulai hari dengan energi positif dan ketenangan pikiran. Saat matahari baru saja terbit, suasana alam terasa begitu murni, tenang, dan bebas dari hiruk-pikuk kesibukan harian. Udara pagi yang masih bersih dan kaya oksigen mengalir masuk ke dalam paru-paru, memberikan kesegaran instan yang membangkitkan tubuh dari rasa kantuk. Momen-momen awal ini memberikan ruang bagi diri kita untuk bersiap menghadapi hari dengan suasana hati yang lebih damai.</p>
+  <p>Selain memberikan ketenangan mental, kebiasaan ini juga menyimpan segudang manfaat luar biasa bagi kesehatan fisik. Langkah kaki yang konsisten di pagi hari secara efektif dapat memperlancar sirkulasi darah, memperkuat otot-otot tubuh, dan menjaga kesehatan jantung. Paparan sinar matahari pagi yang hangat juga menjadi sumber vitamin D alami yang sangat baik untuk meningkatkan sistem kekebalan tubuh dan memperkokoh kepadatan tulang. Dengan rutin berjalan kaki, metabolisme tubuh akan meningkat sehingga stamina Anda tetap terjaga sepanjang hari.</p>
+  <p>Keindahan sejati dari jalan pagi terletak pada kesederhanaannya yang mampu menyatukan kita kembali dengan alam sekitar. Suara kicauan burung yang merdu, tetesan embun yang berkilau di atas dedaunan, danembusan angin sepoi-sepoi menciptakan harmoni alami yang menenangkan jiwa. Aktivitas sederhana tanpa gangguan gawai ini menjadi momen refleksi diri yang berharga, membuat kita lebih bersyukur dan siap menjalani aktivitas dengan penuh semangat.</p>
+  <p><strong>💡Google Font</strong>: Website ini menggunakan <strong>Playfair Display</strong> untuk heading dan <strong>Poppins</strong> untuk body text. Kedua font ini gratis dan mudah digunakan!</p>
+</body>
+</html>
