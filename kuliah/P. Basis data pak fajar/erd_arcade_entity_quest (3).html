@@ -1,0 +1,1805 @@
+<!-- ... existing code ... -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERD ARCADE: Entity Quest</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Press Start 2P & VT323 & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            retro: {
+              neonPink: '#e60067',
+              neonCyan: '#0099cc',
+              neonYellow: '#eab308',
+              neonGreen: '#16a34a',
+              neonPurple: '#8b5cf6',
+              neonOrange: '#ea580c',
+              cabinet: '#f8fafc',
+              cabinetDark: '#f1f5f9',
+              bezel: '#e2e8f0',
+              scanline: 'rgba(0, 150, 255, 0.03)'
+            }
+          },
+          fontFamily: {
+            arcade: ['"Press Start 2P"', 'monospace'],
+            vt: ['"VT323"', 'monospace'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          boxShadow: {
+            'pixel-pink': '4px 4px 0px 0px #9d0246, 0 4px 12px rgba(230,0,103,0.25)',
+            'pixel-cyan': '4px 4px 0px 0px #0369a1, 0 4px 12px rgba(0,153,204,0.25)',
+            'pixel-yellow': '4px 4px 0px 0px #a16207, 0 4px 12px rgba(234,179,8,0.25)',
+            'pixel-green': '4px 4px 0px 0px #15803d, 0 4px 12px rgba(22,163,74,0.25)',
+            'pixel-dark': '4px 4px 0px 0px #334155',
+            'pixel-solid': '4px 4px 0px 0px #0f172a'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Bright Retro Arcade FX */
+    body {
+      background-color: #f1f5f9;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(230, 0, 103, 0.07) 0%, transparent 60%),
+        linear-gradient(rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14, 165, 233, 0.08) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px, 28px 28px;
+      user-select: none;
+      color: #0f172a;
+    }
+
+    /* Subtle Glass Tube / CRT Overlay for Bright Mode */
+    .crt-overlay {
+      background: linear-gradient(
+        rgba(255, 255, 255, 0) 50%, 
+        rgba(15, 23, 42, 0.035) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.015),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.015)
+      );
+      background-size: 100% 4px, 8px 100%;
+      pointer-events: none;
+    }
+
+    /* Arcade Monitor Frame Glow */
+    .crt-screen-frame {
+      box-shadow: 
+        inset 0 0 15px rgba(15, 23, 42, 0.08),
+        0 8px 25px rgba(14, 165, 233, 0.15);
+    }
+
+    /* Pixel Art Buttons */
+    .pixel-btn {
+      position: relative;
+      transition: all 0.08s steps(2);
+      border-style: solid;
+    }
+    .pixel-btn:hover {
+      transform: translate(-2px, -2px);
+      filter: brightness(1.05);
+    }
+    .pixel-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: none !important;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e2e8f0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #e60067;
+      border: 2px solid #ffffff;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0099cc;
+    }
+
+    /* Neon Pulse Animations */
+    @keyframes neonMarqueeLight {
+      0%, 100% { filter: drop-shadow(0 2px 8px rgba(230,0,103,0.3)); }
+      50% { filter: drop-shadow(0 2px 10px rgba(0,153,204,0.4)); }
+    }
+    .animate-marquee-glow {
+      animation: neonMarqueeLight 3s infinite ease-in-out;
+    }
+
+    @keyframes bulbBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.9); }
+    }
+    .bulb-odd { animation: bulbBlink 1s infinite alternate; }
+    .bulb-even { animation: bulbBlink 1s infinite alternate-reverse; }
+
+    /* Blueprint grid for sandbox */
+    .blueprint-grid {
+      background-color: #ffffff;
+      background-image: 
+        radial-gradient(rgba(14, 165, 233, 0.3) 1.5px, transparent 1.5px),
+        linear-gradient(rgba(226, 232, 240, 0.8) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(226, 232, 240, 0.8) 1px, transparent 1px);
+      background-size: 24px 24px, 24px 24px, 24px 24px;
+    }
+
+    /* Print Stylesheet for Certificate */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #certificate-printable, #certificate-printable * {
+        visibility: visible;
+      }
+      #certificate-printable {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 2.5rem;
+        background: #ffffff !important;
+        color: #111827 !important;
+        box-shadow: none !important;
+        border: 12px double #1e293b !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="text-slate-900 min-h-screen font-vt selection:bg-retro-neonPink selection:text-white flex flex-col items-center p-2 sm:p-4 overflow-x-hidden">
+
+  <!-- Arcade Outer Chassis Frame (Bright Retro Pop Cabinet) -->
+  <div class="w-full max-w-6xl bg-white border-4 sm:border-8 border-slate-900 rounded-3xl shadow-[8px_8px_0_0_#0f172a,0_15px_35px_rgba(0,0,0,0.06)] p-3 sm:p-5 relative flex flex-col gap-3 my-auto">
+    
+    <!-- Top Decorative Hardware Bolts -->
+    <div class="absolute -top-3.5 left-8 hidden sm:flex gap-3 text-slate-800 text-sm">
+      <i class="fa-solid fa-circle-dot"></i>
+      <i class="fa-solid fa-circle-dot"></i>
+    </div>
+    <div class="absolute -top-3.5 right-8 hidden sm:flex gap-3 text-slate-800 text-sm">
+      <i class="fa-solid fa-circle-dot"></i>
+      <i class="fa-solid fa-circle-dot"></i>
+    </div>
+
+    <!-- Arcade Header Marquee Signboard -->
+    <header class="bg-gradient-to-r from-pink-50 via-amber-50 to-sky-50 border-4 border-slate-900 rounded-2xl p-3 sm:p-4 shadow-pixel-solid relative overflow-hidden">
+      <!-- Light Bulbs Running Frame -->
+      <div class="absolute top-1 left-2 right-2 flex justify-between px-2 pointer-events-none">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 border border-slate-900 bulb-odd"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-pink-500 border border-slate-900 bulb-even"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 border border-slate-900 bulb-odd"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-900 bulb-even"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 border border-slate-900 bulb-odd hidden sm:inline-block"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-pink-500 border border-slate-900 bulb-even hidden sm:inline-block"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 border border-slate-900 bulb-odd"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-900 bulb-even"></span>
+      </div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-3 mt-1.5">
+        <!-- Logo & Subtitle -->
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-amber-300 border-3 border-slate-900 flex items-center justify-center text-slate-900 shadow-pixel-solid rounded-xl text-2xl font-bold animate-bounce">
+            <i class="fa-solid fa-gamepad"></i>
+          </div>
+          <div>
+            <h1 class="font-arcade text-sm sm:text-lg md:text-xl text-slate-900 tracking-wider animate-marquee-glow flex items-center gap-2">
+              <span class="text-retro-neonPink">ERD</span>
+              <span class="text-retro-neonCyan">ARCADE</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-emerald-700 tracking-wider font-mono font-bold flex items-center gap-2">
+              <span class="inline-block w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+              ENTITY QUEST: MASTER OF RELATIONAL DATA
+            </p>
+          </div>
+        </div>
+
+        <!-- Live Scoreboard, Audio Visualizer & Coins -->
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-arcade text-[10px]">
+          <!-- Audio VU Meter (Active when music plays) -->
+          <div id="vu-meter" class="hidden sm:flex items-end gap-1 h-7 bg-white px-2 py-1 border-2 border-slate-900 rounded-lg shadow-sm">
+            <div class="w-1.5 bg-emerald-500 h-2 vu-bar rounded-sm"></div>
+            <div class="w-1.5 bg-emerald-500 h-4 vu-bar rounded-sm"></div>
+            <div class="w-1.5 bg-amber-400 h-3 vu-bar rounded-sm"></div>
+            <div class="w-1.5 bg-pink-500 h-5 vu-bar rounded-sm"></div>
+            <div class="w-1.5 bg-sky-400 h-2 vu-bar rounded-sm"></div>
+          </div>
+
+          <!-- Sound Controls -->
+          <div class="flex gap-1.5">
+            <button onclick="RetroAudio.toggleBGM()" id="btn-bgm" class="pixel-btn bg-sky-100 border-2 border-slate-900 text-sky-900 px-3 py-1.5 text-[9px] font-bold rounded-lg flex items-center gap-1.5 shadow-pixel-solid hover:bg-sky-200" title="Toggle 8-bit Music">
+              <i class="fa-solid fa-volume-xmark" id="bgm-icon"></i>
+              <span>BGM</span>
+            </button>
+            <button onclick="insertCoin()" class="pixel-btn bg-amber-300 border-2 border-slate-900 text-slate-900 px-3 py-1.5 text-[9px] font-bold rounded-lg flex items-center gap-1 shadow-pixel-solid hover:bg-amber-400">
+              <i class="fa-solid fa-coins"></i>
+              <span>+INSERT</span>
+            </button>
+            <button onclick="openCreditModal()" class="pixel-btn bg-emerald-100 border-2 border-slate-900 text-emerald-900 px-3 py-1.5 text-[9px] font-bold rounded-lg flex items-center gap-1 shadow-pixel-solid hover:bg-emerald-200" title="Informasi Pembuat & Prodi">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>CREDIT</span>
+            </button>
+          </div>
+
+          <!-- Credits & Score Display -->
+          <div class="bg-white border-2 border-slate-900 px-3 py-1.5 rounded-lg text-slate-900 flex items-center gap-3 shadow-pixel-solid">
+            <div>
+              <span class="text-slate-500 text-[8px] block font-bold">CREDIT</span>
+              <span id="credit-count" class="text-retro-neonCyan font-bold text-xs">03</span>
+            </div>
+            <div class="border-l-2 border-slate-200 pl-3">
+              <span class="text-slate-500 text-[8px] block font-bold">HI-SCORE</span>
+              <span id="score-counter" class="text-retro-neonPink font-bold tracking-wider text-xs">000000</span>
+            </div>
+            <div class="border-l-2 border-slate-200 pl-3 hidden sm:block">
+              <span class="text-slate-500 text-[8px] block font-bold">COMBO</span>
+              <span id="combo-counter" class="text-retro-neonGreen font-bold text-xs">x1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Arcade Tabs -->
+    <nav class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-200 pb-2">
+      <div class="flex flex-wrap gap-2 text-xs sm:text-sm">
+        <button onclick="switchTab('campaign')" id="tab-btn-campaign" class="pixel-btn bg-retro-neonPink border-2 border-slate-900 text-white px-3 sm:px-4 py-1.5 rounded-lg font-bold shadow-pixel-solid flex items-center gap-2">
+          <i class="fa-solid fa-dungeon"></i>
+          <span>CAMPAIGN QUEST</span>
+        </button>
+        <button onclick="switchTab('sandbox')" id="tab-btn-sandbox" class="pixel-btn bg-slate-100 border-2 border-slate-900 text-slate-700 px-3 sm:px-4 py-1.5 rounded-lg font-bold shadow-pixel-solid flex items-center gap-2 hover:bg-sky-50 hover:text-retro-neonCyan">
+          <i class="fa-solid fa-diagram-project"></i>
+          <span>ERD SANDBOX</span>
+        </button>
+        <button onclick="switchTab('cheatsheet')" id="tab-btn-cheatsheet" class="pixel-btn bg-slate-100 border-2 border-slate-900 text-slate-700 px-3 sm:px-4 py-1.5 rounded-lg font-bold shadow-pixel-solid flex items-center gap-2 hover:bg-amber-50 hover:text-amber-800">
+          <i class="fa-solid fa-book-skull"></i>
+          <span>CHEAT SHEET</span>
+        </button>
+        <button onclick="switchTab('halloffame')" id="tab-btn-halloffame" class="pixel-btn bg-slate-100 border-2 border-slate-900 text-slate-700 px-3 sm:px-4 py-1.5 rounded-lg font-bold shadow-pixel-solid flex items-center gap-2 hover:bg-emerald-50 hover:text-retro-neonGreen">
+          <i class="fa-solid fa-trophy"></i>
+          <span>TROPHIES</span>
+        </button>
+      </div>
+
+      <!-- CRT Filter Toggle Switch -->
+      <div class="flex items-center gap-2 text-xs text-slate-600 font-bold">
+        <span class="hidden sm:inline font-mono">SCANLINE:</span>
+        <button onclick="toggleCRT()" id="btn-crt" class="px-2.5 py-1 border-2 border-slate-900 bg-emerald-100 text-emerald-900 text-[10px] font-arcade rounded shadow-sm">
+          ON
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Arcade Glass Monitor Container -->
+    <main id="arcade-monitor" class="relative bg-slate-50 border-4 border-slate-900 rounded-2xl overflow-hidden crt-screen-frame min-h-[560px] flex flex-col shadow-inner">
+      <!-- Dynamic CRT Scanline Layer -->
+      <div id="crt-layer" class="crt-overlay absolute inset-0 z-40 pointer-events-none"></div>
+
+      <!-- VIEW 1: CAMPAIGN QUEST -->
+      <section id="view-campaign" class="flex-1 p-3 sm:p-5 flex flex-col gap-4 relative z-10">
+        
+        <!-- Stage Stepper Badges -->
+        <div class="bg-white border-2 border-slate-900 p-2.5 sm:p-3 rounded-xl shadow-pixel-solid flex items-center justify-between flex-wrap gap-2 text-[10px] sm:text-xs">
+          <span class="text-slate-900 font-arcade text-[10px] flex items-center gap-1.5 font-bold">
+            <i class="fa-solid fa-flag-checkered text-retro-neonPink"></i> STAGE SELECT:
+          </span>
+          <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap" id="stage-stepper">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Stage Viewport Canvas -->
+        <div id="stage-viewport" class="flex-1 bg-white border-3 border-slate-900 rounded-xl p-3 sm:p-5 flex flex-col relative overflow-hidden shadow-pixel-solid">
+          <!-- Dynamic Stage Content Injected Here -->
+        </div>
+
+      </section>
+
+      <!-- VIEW 2: ERD SANDBOX BUILDER -->
+      <section id="view-sandbox" class="hidden flex-1 p-3 sm:p-4 flex flex-col gap-3 relative z-10">
+        <!-- Sandbox Control Toolbar -->
+        <div class="bg-white border-3 border-slate-900 p-3 rounded-xl flex flex-wrap items-center justify-between gap-2 shadow-pixel-solid text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-arcade text-[10px] text-slate-900 font-bold mr-1">ADD NODE:</span>
+            <button onclick="sandboxAddNode('entity')" class="pixel-btn bg-amber-100 border-2 border-slate-900 text-amber-950 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-pixel-solid hover:bg-amber-200">
+              <i class="fa-regular fa-square"></i> Entitas
+            </button>
+            <button onclick="sandboxAddNode('attribute')" class="pixel-btn bg-sky-100 border-2 border-slate-900 text-sky-950 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-pixel-solid hover:bg-sky-200">
+              <i class="fa-regular fa-circle"></i> Atribut
+            </button>
+            <button onclick="sandboxAddNode('relation')" class="pixel-btn bg-pink-100 border-2 border-slate-900 text-pink-950 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-pixel-solid hover:bg-pink-200">
+              <i class="fa-solid fa-diamond"></i> Relasi
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="sandboxValidateERD()" class="pixel-btn bg-emerald-300 border-2 border-slate-900 text-slate-900 px-3 py-1 font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-pixel-solid hover:bg-emerald-400">
+              <i class="fa-solid fa-circle-check"></i> VALIDASI ERD
+            </button>
+            <button onclick="sandboxExportSQL()" class="pixel-btn bg-indigo-200 border-2 border-slate-900 text-indigo-950 px-3 py-1 font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-pixel-solid hover:bg-indigo-300">
+              <i class="fa-solid fa-code"></i> EXPORT SQL
+            </button>
+            <button onclick="sandboxClearCanvas()" class="pixel-btn bg-rose-100 border-2 border-slate-900 text-rose-900 px-2.5 py-1 rounded-lg text-xs font-bold shadow-pixel-solid hover:bg-rose-200" title="Bersihkan Kanvas">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Blueprint Canvas -->
+        <div id="sandbox-canvas-container" class="relative flex-1 w-full min-h-[420px] blueprint-grid rounded-xl border-3 border-slate-900 overflow-hidden shadow-inner">
+          <!-- SVG Connecting Lines Layer -->
+          <svg id="sandbox-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+          <!-- HTML Draggable Nodes Injected Here -->
+          <div id="sandbox-nodes" class="absolute inset-0 z-20 overflow-hidden"></div>
+          <!-- Hint / Instruction Overlay -->
+          <div class="absolute bottom-2.5 left-3 text-[11px] text-slate-700 bg-white/95 px-3 py-1.5 border-2 border-slate-900 rounded-lg shadow-sm pointer-events-none font-bold">
+            💡 <span class="text-retro-neonPink">Klik ganda / ikon pensil ✎</span> untuk mengubah nama node. Klik & geser untuk memindahkan.
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CHEAT SHEET & NOTASI -->
+      <section id="view-cheatsheet" class="hidden flex-1 p-4 sm:p-6 overflow-y-auto space-y-5 relative z-10 bg-slate-50">
+        <div class="border-b-2 border-slate-900 pb-2 flex items-center justify-between flex-wrap gap-2">
+          <h2 class="font-arcade text-slate-900 text-sm sm:text-base flex items-center gap-2">
+            <i class="fa-solid fa-book-skull text-retro-neonPink"></i> ERD SURVIVAL MANUAL
+          </h2>
+          <span class="text-xs text-slate-600 font-bold font-mono">STANDAR INDUSTRI & NOTASI CHEN / CROW'S FOOT</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <!-- Chen Notation Guide -->
+          <div class="bg-white border-3 border-slate-900 p-4 rounded-xl space-y-2 shadow-pixel-solid">
+            <h3 class="font-arcade text-[10px] text-amber-700 font-bold">1. NOTASI CHEN (AKADEMIK)</h3>
+            <div class="space-y-2 text-slate-700">
+              <div class="p-2.5 border-2 border-amber-200 rounded-lg bg-amber-50">
+                <span class="text-amber-900 font-bold block mb-1">🟦 Persegi Panjang = ENTITAS</span>
+                Objek dunia nyata yang datanya dicatat (Contoh: Mahasiswa, Produk, Pesanan).
+              </div>
+              <div class="p-2.5 border-2 border-sky-200 rounded-lg bg-sky-50">
+                <span class="text-sky-900 font-bold block mb-1">⚪ Oval / Elips = ATRIBUT</span>
+                Ciri/informasi entitas. Garis bawah menandai <u>Primary Key</u>.
+              </div>
+              <div class="p-2.5 border-2 border-pink-200 rounded-lg bg-pink-50">
+                <span class="text-pink-900 font-bold block mb-1">🔶 Belah Ketupat = RELASI</span>
+                Hubungan kata kerja antara dua entitas (Contoh: MEMBELI, MENGIKUTI).
+              </div>
+            </div>
+          </div>
+
+          <!-- Cardinality Guide -->
+          <div class="bg-white border-3 border-slate-900 p-4 rounded-xl space-y-2 shadow-pixel-solid">
+            <h3 class="font-arcade text-[10px] text-sky-700 font-bold">2. KARDINALITAS RELASI</h3>
+            <div class="space-y-2 text-slate-700">
+              <div class="p-2.5 border-2 border-emerald-200 rounded-lg bg-emerald-50">
+                <span class="text-emerald-900 font-bold block mb-1">1 : 1 (One-to-One)</span>
+                Satu entitas hanya berhubungan dengan satu entitas lain (Contoh: 1 Orang memiliki 1 NIK KTP).
+              </div>
+              <div class="p-2.5 border-2 border-sky-200 rounded-lg bg-sky-50">
+                <span class="text-sky-900 font-bold block mb-1">1 : N (One-to-Many)</span>
+                Satu entitas induk memiliki banyak data anak (Contoh: 1 Jurusan memiliki Banyak Mahasiswa). FK diletakkan di sisi N.
+              </div>
+              <div class="p-2.5 border-2 border-purple-200 rounded-lg bg-purple-50">
+                <span class="text-purple-900 font-bold block mb-1">M : N (Many-to-Many)</span>
+                Kedua belah pihak saling banyak (Contoh: Siswa & Ekskul). Wajib dipecah dengan Junction Table!
+              </div>
+            </div>
+          </div>
+
+          <!-- Keys & Integrity Guide -->
+          <div class="bg-white border-3 border-slate-900 p-4 rounded-xl space-y-2 shadow-pixel-solid">
+            <h3 class="font-arcade text-[10px] text-emerald-700 font-bold">3. ATURAN KUNCI (KEYS)</h3>
+            <div class="space-y-2 text-slate-700">
+              <div class="p-2.5 border-2 border-amber-200 rounded-lg bg-amber-50">
+                <span class="text-amber-900 font-bold block mb-1">🔑 PRIMARY KEY (PK)</span>
+                Pengidentifikasi unik mutlak, bernilai unik untuk tiap baris, dan tidak boleh kosong (<code>NOT NULL</code>).
+              </div>
+              <div class="p-2.5 border-2 border-sky-200 rounded-lg bg-sky-50">
+                <span class="text-sky-900 font-bold block mb-1">🔗 FOREIGN KEY (FK)</span>
+                Kunci tamu pada tabel anak yang merujuk pada nilai Primary Key di tabel induk demi integritas referensial.
+              </div>
+              <div class="p-2.5 border-2 border-pink-200 rounded-lg bg-pink-50">
+                <span class="text-pink-900 font-bold block mb-1">⚡ JUNCTION TABLE</span>
+                Tabel jembatan dengan 2 Foreign Key yang bersama-sama menjadi <em>Composite Primary Key</em>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: TROPHIES & HALL OF FAME -->
+      <section id="view-halloffame" class="hidden flex-1 p-4 sm:p-6 overflow-y-auto space-y-5 relative z-10 bg-slate-50">
+        <div class="border-b-2 border-slate-900 pb-2 flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <h2 class="font-arcade text-slate-900 text-sm sm:text-base flex items-center gap-2">
+              <i class="fa-solid fa-trophy text-amber-500"></i> ARCADE TROPHY VAULT
+            </h2>
+            <span class="text-xs text-slate-600 hidden sm:inline font-bold">| PRESTASI & SERTIFIKASI ARCHITECT</span>
+          </div>
+          <button id="btn-open-cert" onclick="openCertificateModal()" class="pixel-btn bg-amber-300 border-2 border-slate-900 text-slate-900 px-3.5 py-1.5 font-bold text-xs rounded-lg shadow-pixel-solid flex items-center gap-1.5 hidden hover:bg-amber-400">
+            <i class="fa-solid fa-certificate"></i> LIHAT SERTIFIKAT KELULUSAN
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="trophy-grid">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Arcade Cabinet Bottom Coin Door & Footer -->
+    <footer class="bg-white border-3 border-slate-900 rounded-xl p-3 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-2 font-mono shadow-pixel-solid">
+      <div class="flex items-center gap-2 font-bold">
+        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse border border-slate-900"></span>
+        <span class="text-slate-900">SYSTEM: ONLINE</span>
+        <span class="text-slate-300">|</span>
+        <span class="text-retro-neonPink">VER. 2.5-LIGHT ARCADE</span>
+      </div>
+      <div class="text-[11px] text-center font-bold text-slate-700">
+        🕹️ Gunakan mouse & ketukan layar untuk memandu misi. Audio murni Web Audio API!
+      </div>
+      <div class="text-retro-neonCyan text-[11px] font-bold font-arcade">
+        INSERT COIN TO CONTINUE
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Retro Modal Dialog (Pengganti alert/confirm bawaan browser) -->
+  <div id="arcade-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border-4 border-slate-900 max-w-md w-full p-5 space-y-4 shadow-[6px_6px_0_0_#0f172a] relative rounded-2xl">
+      <div class="flex items-center gap-2 border-b-2 border-slate-200 pb-2.5">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-base"></i>
+        <h3 id="modal-title" class="text-xs sm:text-sm text-slate-900 font-arcade font-bold">INFO SYSTEM</h3>
+      </div>
+      <p id="modal-body" class="text-slate-700 text-xs sm:text-sm font-vt leading-relaxed"></p>
+      <div id="modal-actions" class="flex justify-end gap-2 pt-2">
+        <button id="modal-btn-cancel" class="pixel-btn bg-slate-200 border-2 border-slate-900 text-slate-800 px-3.5 py-1.5 text-[10px] font-bold rounded-lg hidden">BATAL</button>
+        <button id="modal-btn-ok" class="pixel-btn bg-retro-neonPink border-2 border-slate-900 text-white px-5 py-1.5 text-[10px] font-bold rounded-lg shadow-pixel-solid">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Bar -->
+  <div id="arcade-toast" class="fixed bottom-6 right-6 z-50 bg-white border-3 border-slate-900 text-slate-900 px-4 py-2.5 text-xs font-arcade rounded-xl shadow-pixel-solid transform translate-y-28 transition-all duration-300 pointer-events-none flex items-center gap-2 font-bold">
+    <i class="fa-solid fa-bolt text-amber-500"></i>
+    <span id="toast-msg">COMBO x2!</span>
+  </div>
+
+  <!-- Modal Credit Khusus: Informasi Akademik & Media Edukasi -->
+  <div id="credit-author-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border-4 border-slate-900 max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-pixel-solid relative rounded-2xl animate-fade-in">
+      
+      <!-- Header Modal -->
+      <div class="flex items-center justify-between border-b-2 border-slate-200 pb-3">
+        <div class="flex items-center gap-2 text-slate-900 font-arcade text-xs sm:text-sm font-bold">
+          <i class="fa-solid fa-graduation-cap text-retro-neonPink"></i>
+          <span>PROJECT CREDITS & INFORMASI</span>
+        </div>
+        <button onclick="closeCreditModal()" class="pixel-btn bg-slate-100 border-2 border-slate-900 text-slate-900 hover:bg-rose-100 hover:text-rose-700 w-8 h-8 flex items-center justify-center rounded-lg text-lg font-bold">
+          &times;
+        </button>
+      </div>
+
+      <!-- Deskripsi & Info Credit -->
+      <div class="bg-slate-50 border-2 border-slate-200 p-4 rounded-xl space-y-3 font-vt text-slate-700">
+        <div>
+          <span class="text-retro-neonPink font-arcade text-[11px] block mb-1 font-bold">PROGRAM STUDI TEKNIK INFORMATIKA</span>
+          <p class="text-slate-900 text-base font-bold">Fakultas Teknik — Universitas Pasundan (UNPAS) Bandung</p>
+        </div>
+        <div class="border-t border-slate-200 pt-2.5 space-y-2 text-xs text-slate-600">
+          <p class="leading-relaxed">
+            🕹️ <b class="text-slate-900">ERD ARCADE: Entity Quest</b> adalah game simulasi interaktif perancangan skema konseptual Entity Relationship Diagram (ERD) dan pemodelan basis data relasional.
+          </p>
+          <p class="leading-relaxed">
+            Dilengkapi sintesis Web Audio API 8-bit, mode verifikasi kardinalitas 1:1, 1:N, M:N, penyelesaian kasus tabel perantara (junction table), dan generator skema SQL DDL otomatis.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tombol Aksi Bawah -->
+      <div class="flex justify-end pt-1">
+        <button onclick="closeCreditModal()" class="pixel-btn bg-retro-neonCyan border-2 border-slate-900 text-white px-6 py-2 font-bold rounded-lg font-arcade text-xs shadow-pixel-solid hover:bg-sky-600">
+          TUTUP [OK]
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sertifikat Penghargaan (Muncul Setelah Menyelesaikan Seluruh Misi) -->
+  <div id="certificate-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto hidden">
+    <div class="w-full max-w-4xl bg-white border-4 border-slate-900 rounded-2xl p-4 sm:p-6 shadow-pixel-solid space-y-4 my-auto relative">
+      
+      <!-- Top Action Bar (Nama Edit & Cetak PDF) -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-slate-200 pb-3 no-print">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-300 border-2 border-slate-900 flex items-center justify-center text-slate-900 font-bold">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <div>
+            <h3 class="font-arcade text-xs sm:text-sm text-slate-900 font-bold">SERTIFIKAT KELULUSAN TERBUKA!</h3>
+            <p class="text-[11px] text-slate-500 font-bold">Ketik nama Anda di bawah ini, lalu klik Cetak / PDF.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="printCertificate()" class="pixel-btn bg-emerald-400 border-2 border-slate-900 text-slate-900 px-4 py-2 font-bold rounded-lg font-arcade text-xs shadow-pixel-solid hover:bg-emerald-500 flex items-center gap-2">
+            <i class="fa-solid fa-print"></i> CETAK / SIMPAN PDF
+          </button>
+          <button onclick="closeCertificateModal()" class="pixel-btn bg-slate-100 border-2 border-slate-900 text-slate-800 px-3.5 py-2 text-xs font-bold rounded-lg hover:bg-slate-200">
+            TUTUP
+          </button>
+        </div>
+      </div>
+
+      <!-- Input Ganti Nama Penerima Langsung -->
+      <div class="bg-amber-50 border-2 border-amber-200 p-3 rounded-xl flex flex-col sm:flex-row items-center gap-3 no-print text-xs">
+        <label for="cert-input-name" class="font-arcade text-amber-900 text-[11px] whitespace-nowrap font-bold">
+          <i class="fa-solid fa-user-pen"></i> NAMA PENERIMA:
+        </label>
+        <input 
+          id="cert-input-name" 
+          type="text" 
+          value="DATA ARCHITECT HERO" 
+          oninput="updateCertificateRecipient(this.value)"
+          placeholder="Ketik nama lengkap Anda..."
+          class="flex-1 w-full bg-white border-2 border-slate-900 px-3 py-1.5 rounded-lg text-slate-900 font-sans text-sm focus:border-retro-neonPink outline-none font-bold"
+        >
+      </div>
+
+      <!-- KANVAS SERTIFIKAT RESMI (Elemen yang dicetak ke PDF) -->
+      <div id="certificate-printable" class="bg-white text-slate-900 border-8 border-slate-900 p-6 sm:p-10 rounded-xl relative shadow-xl flex flex-col justify-between overflow-hidden">
+        <!-- Bingkai Sudut Ornamen Klasik -->
+        <div class="absolute top-2 left-2 w-10 h-10 border-t-4 border-l-4 border-amber-600 pointer-events-none"></div>
+        <div class="absolute top-2 right-2 w-10 h-10 border-t-4 border-r-4 border-amber-600 pointer-events-none"></div>
+        <div class="absolute bottom-2 left-2 w-10 h-20 border-b-4 border-l-4 border-amber-600 pointer-events-none"></div>
+        <div class="absolute bottom-2 right-2 w-10 h-20 border-b-4 border-r-4 border-amber-600 pointer-events-none"></div>
+
+        <!-- Header Sertifikat -->
+        <div class="text-center space-y-1 sm:space-y-2 border-b-2 border-amber-500/40 pb-4">
+          <div class="inline-flex items-center gap-2 text-amber-800 tracking-widest text-[11px] sm:text-xs font-bold uppercase">
+            <i class="fa-solid fa-star text-amber-500"></i>
+            SERTIFIKAT KOMPETENSI BASIS DATA
+            <i class="fa-solid fa-star text-amber-500"></i>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-wide text-slate-900 font-serif uppercase">
+            CERTIFICATE OF ACHIEVEMENT
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-600 italic font-sans">
+            Diberikan sebagai pengakuan atas ketuntasan seluruh simulasi perancangan ERD
+          </p>
+        </div>
+
+        <!-- Nama Penerima yang Dapat Diubah -->
+        <div class="text-center my-6 sm:my-8 space-y-2">
+          <span class="text-xs sm:text-sm tracking-wider text-slate-500 uppercase font-sans font-medium">Diberikan Kepada:</span>
+          <div id="cert-display-name" class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-amber-900 tracking-wider font-serif underline decoration-amber-500 decoration-2 underline-offset-8 py-2">
+            DATA ARCHITECT HERO
+          </div>
+          <p class="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed pt-2 font-sans">
+            Telah berhasil menyelesaikan seluruh rangkaian quest pemodelan data relasional, menguasai klasifikasi entitas & atribut, formulasi Primary/Foreign Key, resolusi kardinalitas (1:1, 1:N, M:N), implementasi Junction Table, serta normalisasi skema pada platform <b>ERD ARCADE: Entity Quest</b>.
+          </p>
+        </div>
+
+        <!-- Meta Data & Tanda Tangan -->
+        <div class="grid grid-cols-3 items-end pt-4 border-t-2 border-slate-200 text-slate-700 text-xs sm:text-sm mt-4 font-sans">
+          <!-- Kolom Tanggal & ID -->
+          <div class="text-left space-y-1">
+            <p class="text-[10px] sm:text-xs text-slate-500 uppercase">TANGGAL PENYELESAIAN:</p>
+            <p id="cert-date" class="font-bold text-slate-900"></p>
+            <p class="text-[10px] text-slate-500 font-mono">CREDENTIAL ID: <span id="cert-id" class="text-slate-800 font-bold">ERD-9984</span></p>
+          </div>
+
+          <!-- Stempel Medali Segel Emas -->
+          <div class="flex flex-col items-center justify-center">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-dashed border-amber-600 bg-amber-50 flex flex-col items-center justify-center text-amber-700 shadow-md">
+              <i class="fa-solid fa-ribbon text-xl sm:text-2xl text-amber-600"></i>
+              <span class="text-[8px] sm:text-[9px] font-bold tracking-widest mt-0.5">VERIFIED</span>
+            </div>
+            <span class="text-[9px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">DATABASE ARCHITECT</span>
+          </div>
+
+          <!-- Kolom Skor & Verifikasi -->
+          <div class="text-right space-y-1">
+            <p class="text-[10px] sm:text-xs text-slate-500 uppercase">TOTAL HI-SCORE:</p>
+            <p id="cert-score" class="font-bold text-amber-700 font-mono text-sm sm:text-base">000000 PTS</p>
+            <p class="text-[10px] text-slate-500 italic">Status: MASTERED</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Game Logic & Audio Synthesizer Script -->
+  <script>
+    /* =========================================================
+       1. SYNTHETIC 8-BIT WEB AUDIO API (No External Files)
+       ========================================================= */
+    const RetroAudio = {
+      ctx: null,
+      bgmInterval: null,
+      isBgmPlaying: false,
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      playTone(freq, duration = 0.1, type = 'square', gainVal = 0.1) {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) {}
+      },
+
+      insertCoin() {
+        this.playTone(987.77, 0.08, 'square', 0.15); // B5
+        setTimeout(() => this.playTone(1318.51, 0.25, 'square', 0.15), 80); // E6
+      },
+
+      correct() {
+        this.playTone(523.25, 0.08, 'triangle', 0.2); // C5
+        setTimeout(() => this.playTone(659.25, 0.08, 'triangle', 0.2), 80); // E5
+        setTimeout(() => this.playTone(783.99, 0.2, 'triangle', 0.2), 160); // G5
+      },
+
+      wrong() {
+        this.playTone(220, 0.15, 'sawtooth', 0.2);
+        setTimeout(() => this.playTone(164.81, 0.25, 'sawtooth', 0.2), 140);
+      },
+
+      laserLink() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+      },
+
+      victory() {
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, High C
+        notes.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 0.15, 'square', 0.18), idx * 100);
+        });
+      },
+
+      toggleBGM() {
+        this.init();
+        const btn = document.getElementById('btn-bgm');
+        const icon = document.getElementById('bgm-icon');
+        const vu = document.getElementById('vu-meter');
+
+        if (this.isBgmPlaying) {
+          clearInterval(this.bgmInterval);
+          this.isBgmPlaying = false;
+          icon.className = 'fa-solid fa-volume-xmark';
+          btn.classList.remove('bg-sky-400', 'text-white');
+          btn.classList.add('bg-sky-100', 'text-sky-900');
+          if (vu) vu.classList.add('opacity-40');
+        } else {
+          this.isBgmPlaying = true;
+          icon.className = 'fa-solid fa-volume-high';
+          btn.classList.add('bg-sky-400', 'text-white');
+          btn.classList.remove('bg-sky-100', 'text-sky-900');
+          if (vu) vu.classList.remove('opacity-40');
+
+          // Upbeat Chiptune Pattern
+          const melody = [
+            261.63, 0, 329.63, 392.00, 523.25, 392.00, 329.63, 0,
+            293.66, 0, 349.23, 440.00, 587.33, 440.00, 349.23, 0,
+            246.94, 0, 293.66, 392.00, 493.88, 392.00, 293.66, 0,
+            261.63, 329.63, 392.00, 523.25, 659.25, 523.25, 392.00, 0
+          ];
+          let step = 0;
+          this.bgmInterval = setInterval(() => {
+            const freq = melody[step % melody.length];
+            if (freq > 0) {
+              this.playTone(freq, 0.08, 'square', 0.04);
+              this.playTone(freq / 2, 0.08, 'triangle', 0.03); // Bass layer
+            }
+            step++;
+          }, 140);
+        }
+      }
+    };
+
+    /* =========================================================
+       2. GLOBAL GAME STATE & REWARD LOGIC
+       ========================================================= */
+    const gameState = {
+      score: 0,
+      combo: 1,
+      credits: 3,
+      currentStage: 1,
+      maxUnlockedStage: 1,
+      trophies: {
+        catcher: false,
+        keymaster: false,
+        linker: false,
+        junction_hero: false,
+        spaghetti_slayer: false,
+        architect: false
+      },
+      bossTimeLeft: 60,
+      bossTimer: null
+    };
+
+    function loadSavedState() {
+      try {
+        const saved = localStorage.getItem('erd_arcade_state');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          Object.assign(gameState, parsed);
+        }
+      } catch(e) {}
+      updateScoreboard();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('erd_arcade_state', JSON.stringify({
+          score: gameState.score,
+          credits: gameState.credits,
+          maxUnlockedStage: gameState.maxUnlockedStage,
+          trophies: gameState.trophies
+        }));
+      } catch(e) {}
+    }
+
+    function updateScoreboard() {
+      const scoreStr = String(gameState.score).padStart(6, '0');
+      const creditStr = String(gameState.credits).padStart(2, '0');
+      document.getElementById('score-counter').innerText = scoreStr;
+      document.getElementById('credit-count').innerText = creditStr;
+      document.getElementById('combo-counter').innerText = `x${gameState.combo}`;
+    }
+
+    function addScore(pts) {
+      gameState.score += pts * gameState.combo;
+      gameState.combo = Math.min(gameState.combo + 1, 8);
+      updateScoreboard();
+      saveState();
+    }
+
+    function resetCombo() {
+      gameState.combo = 1;
+      updateScoreboard();
+    }
+
+    function insertCoin() {
+      RetroAudio.insertCoin();
+      gameState.credits += 1;
+      showArcadeToast("INSERT COIN: CREDIT +1");
+      updateScoreboard();
+      saveState();
+    }
+
+    function showArcadeToast(msg) {
+      const toast = document.getElementById('arcade-toast');
+      const text = document.getElementById('toast-msg');
+      text.innerText = msg;
+      toast.classList.remove('translate-y-28');
+      setTimeout(() => {
+        toast.classList.add('translate-y-28');
+      }, 2000);
+    }
+
+    function toggleCRT() {
+      const layer = document.getElementById('crt-layer');
+      const btn = document.getElementById('btn-crt');
+      if (layer.classList.contains('hidden')) {
+        layer.classList.remove('hidden');
+        btn.innerText = 'ON';
+        btn.className = 'px-2.5 py-1 border-2 border-slate-900 bg-emerald-100 text-emerald-900 text-[10px] font-arcade rounded shadow-sm';
+      } else {
+        layer.classList.add('hidden');
+        btn.innerText = 'OFF';
+        btn.className = 'px-2.5 py-1 border-2 border-slate-900 bg-slate-200 text-slate-700 text-[10px] font-arcade rounded shadow-sm';
+      }
+    }
+
+    function switchTab(tabId) {
+      RetroAudio.playTone(440, 0.05);
+      ['campaign', 'sandbox', 'cheatsheet', 'halloffame'].forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabId) {
+          view.classList.remove('hidden');
+          btn.className = 'pixel-btn bg-retro-neonPink border-2 border-slate-900 text-white px-3 sm:px-4 py-1.5 rounded-lg font-bold shadow-pixel-solid flex items-center gap-2';
+        } else {
+          view.classList.add('hidden');
+          btn.className = 'pixel-btn bg-slate-100 border-2 border-slate-900 text-slate-700 px-3 sm:px-4 py-1.5 rounded-lg font-bold shadow-pixel-solid flex items-center gap-2 hover:bg-sky-50';
+        }
+      });
+
+      if (tabId === 'halloffame') renderTrophies();
+      if (tabId === 'sandbox') initSandboxCanvas();
+    }
+
+    /* =========================================================
+       3. CAMPAIGN QUEST STAGES (5 Stages)
+       ========================================================= */
+    function renderStageStepper() {
+      const container = document.getElementById('stage-stepper');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 5; i++) {
+        const unlocked = i <= gameState.maxUnlockedStage;
+        const current = i === gameState.currentStage;
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1 rounded-lg text-[10px] border-2 font-arcade transition-all ${
+          current 
+            ? 'bg-amber-300 border-slate-900 text-slate-900 font-bold shadow-pixel-solid' 
+            : unlocked 
+              ? 'bg-white border-slate-900 text-slate-800 hover:bg-sky-50' 
+              : 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed'
+        }`;
+        btn.innerHTML = `${unlocked ? '<i class="fa-solid fa-gamepad text-retro-neonPink"></i>' : '<i class="fa-solid fa-lock"></i>'} STG ${i}`;
+        if (unlocked) {
+          btn.onclick = () => loadStage(i);
+        }
+        container.appendChild(btn);
+      }
+    }
+
+    function loadStage(stageNum) {
+      if (stageNum > gameState.maxUnlockedStage) return;
+      RetroAudio.playTone(600, 0.08);
+      gameState.currentStage = stageNum;
+      renderStageStepper();
+
+      const viewport = document.getElementById('stage-viewport');
+      viewport.innerHTML = '';
+
+      if (stageNum === 1) renderStage1(viewport);
+      else if (stageNum === 2) renderStage2(viewport);
+      else if (stageNum === 3) renderStage3(viewport);
+      else if (stageNum === 4) renderStage4(viewport);
+      else if (stageNum === 5) renderStage5(viewport);
+    }
+
+    /* STAGE 1: THE ENTITY CATCH (Klasifikasi Entitas, Atribut, Nilai) */
+    const stg1Items = [
+      { text: "MAHASISWA", type: "entitas", hint: "Objek utama yang menyimpan kumpulan fakta dan data pribadi." },
+      { text: "nomor_induk (NIM)", type: "atribut", hint: "Karakteristik atau kolom penanda milik seorang mahasiswa." },
+      { text: "'Budi Santoso'", type: "nilai", hint: "Isi data spesifik nyata dari sebuah kolom/atribut." },
+      { text: "MATA_KULIAH", type: "entitas", hint: "Kumpulan subjek pelajaran yang ditawarkan di kampus." },
+      { text: "harga_satuan", type: "atribut", hint: "Kolom penentu nilai rupiah suatu produk." },
+      { text: "350000", type: "nilai", hint: "Angka nominal konkret hasil pengisian data transaksi." }
+    ];
+    let stg1Index = 0;
+
+    function renderStage1(container) {
+      stg1Index = 0;
+      const item = stg1Items[stg1Index];
+
+      container.innerHTML = `
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2">
+            <div>
+              <span class="text-retro-neonPink font-arcade text-xs font-bold">STAGE 01: THE ENTITY CATCH</span>
+              <p class="text-xs text-slate-600 font-bold">Pilah objek data berikut ke dalam wadah konsep yang tepat!</p>
+            </div>
+            <span class="text-xs font-arcade text-retro-neonCyan font-bold">TARGET: 6 ITEM</span>
+          </div>
+
+          <!-- Target Card in Scanner -->
+          <div class="flex flex-col items-center justify-center my-4 py-8 bg-amber-50/50 border-4 border-dashed border-amber-400 rounded-2xl relative shadow-sm">
+            <span class="absolute top-2.5 left-4 text-[11px] text-amber-800 font-mono font-bold">// SCANNER OBJEK</span>
+            <div id="stg1-text" class="text-2xl sm:text-3xl font-arcade text-slate-900 tracking-wider my-3 text-center px-4 font-bold">
+              ${item.text}
+            </div>
+            <p id="stg1-hint" class="text-xs text-slate-600 max-w-md text-center italic mt-1 font-vt font-bold">
+              // Hint: ${item.hint}
+            </p>
+          </div>
+
+          <!-- 3 Destination Drop Categories -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onclick="catchEntity('entitas')" class="pixel-btn bg-amber-100 border-3 border-slate-900 p-3.5 text-center rounded-xl shadow-pixel-solid hover:bg-amber-200">
+              <span class="block font-arcade text-amber-900 text-xs mb-1 font-bold">🟦 ENTITAS</span>
+              <span class="text-[12px] text-slate-700 font-bold">Tabel / Wadah Objek Nyata</span>
+            </button>
+            <button onclick="catchEntity('atribut')" class="pixel-btn bg-sky-100 border-3 border-slate-900 p-3.5 text-center rounded-xl shadow-pixel-solid hover:bg-sky-200">
+              <span class="block font-arcade text-sky-900 text-xs mb-1 font-bold">⚪ ATRIBUT</span>
+              <span class="text-[12px] text-slate-700 font-bold">Kolom Ciri / Karakteristik</span>
+            </button>
+            <button onclick="catchEntity('nilai')" class="pixel-btn bg-pink-100 border-3 border-slate-900 p-3.5 text-center rounded-xl shadow-pixel-solid hover:bg-pink-200">
+              <span class="block font-arcade text-pink-900 text-xs mb-1 font-bold">📝 NILAI DATA</span>
+              <span class="text-[12px] text-slate-700 font-bold">Isi Baris / Konten Faktual</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function catchEntity(selectedType) {
+      const current = stg1Items[stg1Index];
+      if (current.type === selectedType) {
+        RetroAudio.correct();
+        addScore(100);
+        showArcadeToast(`BENAR! ${current.text} adalah ${current.type.toUpperCase()}`);
+        stg1Index++;
+
+        if (stg1Index >= stg1Items.length) {
+          RetroAudio.victory();
+          gameState.trophies.catcher = true;
+          gameState.maxUnlockedStage = Math.max(gameState.maxUnlockedStage, 2);
+          saveState();
+          showArcadeModal("🎉 STAGE 1 SELESAI!", "Kamu telah menguasai pembedaan Entitas, Atribut, dan Nilai!", () => loadStage(2));
+          return;
+        }
+
+        // Show Next item
+        const next = stg1Items[stg1Index];
+        document.getElementById('stg1-text').innerText = next.text;
+        document.getElementById('stg1-hint').innerText = `// Hint: ${next.hint}`;
+      } else {
+        resetCombo();
+        showArcadeModal("❌ SALAH KELOMPOK!", `'${current.text}' adalah ${current.type.toUpperCase()}! Coba perhatikan lagi.`);
+      }
+    }
+
+    /* STAGE 2: KEY MASTER (PK & FK Linkage) */
+    let stg2PK = null;
+    let stg2FK = null;
+
+    function renderStage2(container) {
+      stg2PK = null;
+      stg2FK = null;
+
+      container.innerHTML = `
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2">
+            <div>
+              <span class="text-retro-neonPink font-arcade text-xs font-bold">STAGE 02: KEY MASTER</span>
+              <p class="text-xs text-slate-600 font-bold">Tentukan Primary Key (Kunci Utama) dan pasangkan Foreign Key (Kunci Tamu)!</p>
+            </div>
+            <span class="text-xs font-arcade text-retro-neonCyan font-bold">INTEGRITY CHECK</span>
+          </div>
+
+          <!-- Relational Tables Display -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+            
+            <!-- Table 1: PLAYERS -->
+            <div class="bg-amber-50/60 border-3 border-slate-900 p-4 space-y-3 rounded-xl shadow-pixel-solid">
+              <div class="flex justify-between items-center text-xs text-amber-900 border-b-2 border-amber-200 pb-2 font-arcade font-bold">
+                <span>👾 ENTITAS: PLAYERS (Induk)</span>
+              </div>
+              <p class="text-[12px] text-slate-700 font-bold">Pilih atribut mana yang WAJIB menjadi Primary Key (PK):</p>
+              
+              <div class="space-y-2 text-xs">
+                <button onclick="selectPK('nama')" id="pk-nama" class="w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg hover:bg-amber-100 font-bold">
+                  ⚪ nama_lengkap (Bisa sama/kembar dengan orang lain)
+                </button>
+                <button onclick="selectPK('player_id')" id="pk-player_id" class="w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg hover:bg-amber-100 font-bold">
+                  ⚪ player_id (Unik mutlak, misal: P-001)
+                </button>
+                <button onclick="selectPK('skor')" id="pk-skor" class="w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg hover:bg-amber-100 font-bold">
+                  ⚪ skor_tertinggi (Angka sering berubah-ubah)
+                </button>
+              </div>
+            </div>
+
+            <!-- Table 2: HIGH_SCORES -->
+            <div class="bg-sky-50/60 border-3 border-slate-900 p-4 space-y-3 rounded-xl shadow-pixel-solid">
+              <div class="flex justify-between items-center text-xs text-sky-900 border-b-2 border-sky-200 pb-2 font-arcade font-bold">
+                <span>🏆 ENTITAS: HIGH_SCORES (Anak)</span>
+              </div>
+              <p class="text-[12px] text-slate-700 font-bold">Pilih Foreign Key (FK) yang merujuk ke tabel PLAYERS:</p>
+              
+              <div class="space-y-2 text-xs">
+                <button onclick="selectFK('score_id')" id="fk-score_id" class="w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg hover:bg-sky-100 font-bold">
+                  ⚪ score_id (Ini adalah PK milik tabel High Scores sendiri)
+                </button>
+                <button onclick="selectFK('player_id_fk')" id="fk-player_id_fk" class="w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg hover:bg-sky-100 font-bold">
+                  ⚪ player_id (Menunjuk langsung ke pemain pemegang rekor)
+                </button>
+                <button onclick="selectFK('tanggal')" id="fk-tanggal" class="w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg hover:bg-sky-100 font-bold">
+                  ⚪ tanggal_main (Bukan penunjuk ke data pemain)
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Action Submission -->
+          <div class="flex justify-end">
+            <button onclick="verifyStage2()" class="pixel-btn bg-emerald-400 border-2 border-slate-900 text-slate-900 px-6 py-2.5 font-bold rounded-lg shadow-pixel-solid font-arcade text-xs hover:bg-emerald-500">
+              ⚡ AKTIFKAN KUNCI RELASI
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectPK(col) {
+      RetroAudio.playTone(700, 0.05);
+      stg2PK = col;
+      ['nama', 'player_id', 'skor'].forEach(c => {
+        const el = document.getElementById(`pk-${c}`);
+        if (!el) return;
+        if (c === col) {
+          el.className = 'w-full text-left p-2.5 border-2 border-slate-900 bg-amber-300 text-slate-900 font-bold rounded-lg shadow-pixel-solid';
+        } else {
+          el.className = 'w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg font-bold';
+        }
+      });
+    }
+
+    function selectFK(col) {
+      RetroAudio.playTone(700, 0.05);
+      stg2FK = col;
+      ['score_id', 'player_id_fk', 'tanggal'].forEach(c => {
+        const el = document.getElementById(`fk-${c}`);
+        if (!el) return;
+        if (c === col) {
+          el.className = 'w-full text-left p-2.5 border-2 border-slate-900 bg-sky-300 text-slate-900 font-bold rounded-lg shadow-pixel-solid';
+        } else {
+          el.className = 'w-full text-left p-2.5 border-2 border-slate-900 bg-white text-slate-800 rounded-lg font-bold';
+        }
+      });
+    }
+
+    function verifyStage2() {
+      if (stg2PK === 'player_id' && stg2FK === 'player_id_fk') {
+        RetroAudio.victory();
+        addScore(300);
+        gameState.trophies.keymaster = true;
+        gameState.maxUnlockedStage = Math.max(gameState.maxUnlockedStage, 3);
+        saveState();
+        showArcadeModal("✨ KEY MASTER TERSERTIFIKASI!", "player_id sebagai PK unik dan Foreign Key menjamin integritas relasional data pemain!", () => loadStage(3));
+      } else {
+        resetCombo();
+        showArcadeModal("❌ KUNCI TIDAK COCOK", "PK harus bersifat unik mutlak (player_id), dan FK di tabel anak harus merujuk ke PK tabel induk!");
+      }
+    }
+
+    /* STAGE 3: CARDO-CONNECTOR (Kardinalitas Relasi 1:1, 1:N, M:N) */
+    const stg3Quizzes = [
+      {
+        left: "WARGA NEGARA",
+        right: "PASPOR RESMI",
+        desc: "Satu warga hanya memiliki 1 paspor aktif, dan 1 paspor hanya dimiliki oleh tepat 1 orang warga.",
+        answer: "1:1"
+      },
+      {
+        left: "DOSEN WALI",
+        right: "MAHASISWA BIMBINGAN",
+        desc: "1 Dosen membimbing BANYAK Mahasiswa, namun tiap Mahasiswa hanya memiliki 1 Dosen Wali.",
+        answer: "1:N"
+      },
+      {
+        left: "DOKTER SPESIALIS",
+        right: "PASIEN RUMAH SAKIT",
+        desc: "1 Dokter merawat banyak Pasien, dan 1 Pasien dapat berkonsultasi ke beberapa Dokter spesialis yang berbeda.",
+        answer: "M:N"
+      }
+    ];
+    let stg3Index = 0;
+
+    function renderStage3(container) {
+      const q = stg3Quizzes[stg3Index];
+
+      container.innerHTML = `
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2">
+            <div>
+              <span class="text-retro-neonPink font-arcade text-xs font-bold">STAGE 03: CARDO-CONNECTOR</span>
+              <p class="text-xs text-slate-600 font-bold">Analisis kasus dan tentukan kardinalitas relasi yang valid!</p>
+            </div>
+            <span class="text-xs font-arcade text-retro-neonCyan font-bold">SOAL ${stg3Index + 1} / ${stg3Quizzes.length}</span>
+          </div>
+
+          <!-- Visual Connector Diagram -->
+          <div class="bg-gradient-to-r from-pink-50 via-white to-sky-50 border-3 border-slate-900 p-6 rounded-2xl flex flex-col items-center justify-center gap-4 my-2 shadow-pixel-solid">
+            <div class="flex items-center justify-center gap-4 sm:gap-8 flex-wrap">
+              <div class="bg-amber-100 border-2 border-slate-900 px-4 py-3 rounded-xl text-amber-950 font-arcade text-xs text-center shadow-pixel-solid font-bold">
+                ${q.left}
+              </div>
+              <div class="w-12 h-12 bg-pink-200 border-2 border-slate-900 rounded-full flex items-center justify-center text-pink-900 animate-pulse text-lg shadow-sm">
+                <i class="fa-solid fa-link"></i>
+              </div>
+              <div class="bg-sky-100 border-2 border-slate-900 px-4 py-3 rounded-xl text-sky-950 font-arcade text-xs text-center shadow-pixel-solid font-bold">
+                ${q.right}
+              </div>
+            </div>
+            <p class="text-xs text-slate-700 max-w-lg text-center mt-2 font-mono bg-white p-2.5 border-2 border-slate-200 rounded-xl font-bold shadow-sm">
+              📜 "${q.desc}"
+            </p>
+          </div>
+
+          <!-- Options -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onclick="submitCardinality('1:1')" class="pixel-btn bg-emerald-100 border-2 border-slate-900 p-3 text-center rounded-xl shadow-pixel-solid hover:bg-emerald-200">
+              <span class="block font-arcade text-emerald-950 text-xs mb-1 font-bold">1 : 1</span>
+              <span class="text-[12px] text-slate-700 font-bold">One-to-One</span>
+            </button>
+            <button onclick="submitCardinality('1:N')" class="pixel-btn bg-sky-100 border-2 border-slate-900 p-3 text-center rounded-xl shadow-pixel-solid hover:bg-sky-200">
+              <span class="block font-arcade text-sky-950 text-xs mb-1 font-bold">1 : N</span>
+              <span class="text-[12px] text-slate-700 font-bold">One-to-Many</span>
+            </button>
+            <button onclick="submitCardinality('M:N')" class="pixel-btn bg-pink-100 border-2 border-slate-900 p-3 text-center rounded-xl shadow-pixel-solid hover:bg-pink-200">
+              <span class="block font-arcade text-pink-950 text-xs mb-1 font-bold">M : N</span>
+              <span class="text-[12px] text-slate-700 font-bold">Many-to-Many</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitCardinality(ans) {
+      const q = stg3Quizzes[stg3Index];
+      if (ans === q.answer) {
+        RetroAudio.laserLink();
+        addScore(150);
+        showArcadeToast(`KONEKSI TEPAT: ${ans}!`);
+        stg3Index++;
+
+        if (stg3Index >= stg3Quizzes.length) {
+          RetroAudio.victory();
+          gameState.trophies.linker = true;
+          gameState.maxUnlockedStage = Math.max(gameState.maxUnlockedStage, 4);
+          saveState();
+          showArcadeModal("🎉 LUAR BIASA!", "Kamu telah menguasai ketiga variasi kardinalitas relasi!", () => {
+            stg3Index = 0;
+            loadStage(4);
+          });
+        } else {
+          renderStage3(document.getElementById('stage-viewport'));
+        }
+      } else {
+        resetCombo();
+        showArcadeModal("❌ KARDINALITAS SALAH", `Hubungan '${q.left}' dan '${q.right}' adalah ${q.answer}. Coba cermati lagi deskripsinya!`);
+      }
+    }
+
+    /* STAGE 4: JUNCTION TABLE RUSH (Many-to-Many Solution) */
+    let selectedJuncOpt = null;
+
+    function renderStage4(container) {
+      selectedJuncOpt = null;
+
+      container.innerHTML = `
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2">
+            <div>
+              <span class="text-retro-neonPink font-arcade text-xs font-bold">STAGE 04: JUNCTION TABLE RUSH</span>
+              <p class="text-xs text-slate-600 font-bold">Pecah relasi Many-to-Many (M:N) yang berbahaya agar database terbebas dari redundansi!</p>
+            </div>
+            <span class="text-xs font-arcade text-purple-700 font-bold">NORMALISASI</span>
+          </div>
+
+          <div class="bg-purple-50/70 border-3 border-slate-900 p-4 rounded-xl space-y-3 shadow-pixel-solid">
+            <div class="flex items-center justify-between text-xs font-mono text-slate-800 bg-white p-2.5 rounded-lg border-2 border-purple-200 font-bold">
+              <span>Entitas A: <b>SISWA</b> (id_siswa, nama)</span>
+              <span class="text-retro-neonPink font-bold">◄ M : N ►</span>
+              <span>Entitas B: <b>EKSTRAKURIKULER</b> (id_ekskul, nama_ekskul)</span>
+            </div>
+            <p class="text-xs text-purple-950 font-bold">
+              ⚠️ <b>Masalah:</b> 1 Siswa bisa ikut banyak ekskul, dan 1 ekskul diikuti banyak siswa. Di relational database, relasi M:N langsung tidak bisa direpresentasikan tanpa kolom ganda!
+            </p>
+          </div>
+
+          <!-- Junction Setup Form -->
+          <div class="bg-white border-3 border-slate-900 p-4 rounded-xl space-y-3 shadow-pixel-solid">
+            <h4 class="text-xs font-arcade text-sky-900 font-bold">DESAIN JEMBATAN PENGHUBUNG (BRIDGE TABLE):</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="block text-slate-700 mb-1 font-bold">Nama Tabel Perantara (Junction):</label>
+                <input id="junction-name" type="text" placeholder="misal: siswa_ekskul / anggota_ekskul" class="w-full bg-slate-50 border-2 border-slate-900 px-3 py-2 text-slate-900 font-mono rounded-lg focus:border-retro-neonCyan outline-none font-bold">
+              </div>
+              <div>
+                <label class="block text-slate-700 mb-1 font-bold">Dua Kunci Asing (Foreign Keys) yang Wajib Ada:</label>
+                <div class="bg-slate-50 border-2 border-slate-200 p-2 rounded-lg text-slate-800 font-mono text-[11px] font-bold">
+                  🔑 id_siswa (FK ke SISWA)<br>
+                  🔑 id_ekskul (FK ke EKSTRAKURIKULER)
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-2">
+              <label class="block text-slate-700 text-xs font-bold">Hasil kardinalitas setelah tabel junction dipasang:</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <button onclick="setJuncOpt(1)" id="junc-opt-1" class="p-2.5 border-2 border-slate-900 bg-white text-left rounded-lg text-slate-800 font-bold">
+                  ⚪ Terpecah menjadi dua relasi 1:N (SISWA 1:N JUNCTION dan EKSKUL 1:N JUNCTION)
+                </button>
+                <button onclick="setJuncOpt(2)" id="junc-opt-2" class="p-2.5 border-2 border-slate-900 bg-white text-left rounded-lg text-slate-800 font-bold">
+                  ⚪ Tetap Many-to-Many tanpa perubahan struktur
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button onclick="verifyStage4()" class="pixel-btn bg-emerald-400 border-2 border-slate-900 text-slate-900 px-6 py-2.5 font-bold rounded-lg shadow-pixel-solid font-arcade text-xs hover:bg-emerald-500">
+              🚀 DEPLOY JUNCTION TABLE
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function setJuncOpt(val) {
+      RetroAudio.playTone(600, 0.05);
+      selectedJuncOpt = val;
+      [1, 2].forEach(v => {
+        const el = document.getElementById(`junc-opt-${v}`);
+        if (v === val) {
+          el.className = 'p-2.5 border-2 border-slate-900 bg-sky-200 text-left rounded-lg text-sky-950 font-bold shadow-pixel-solid';
+        } else {
+          el.className = 'p-2.5 border-2 border-slate-900 bg-white text-left rounded-lg text-slate-800 font-bold';
+        }
+      });
+    }
+
+    function verifyStage4() {
+      const name = document.getElementById('junction-name').value.trim().toLowerCase();
+
+      if (name.length > 2 && selectedJuncOpt === 1) {
+        RetroAudio.victory();
+        addScore(400);
+        gameState.trophies.junction_hero = true;
+        gameState.maxUnlockedStage = Math.max(gameState.maxUnlockedStage, 5);
+        saveState();
+        showArcadeModal("🏆 JUNCTION TABLE SUKSES!", `Tabel '${name}' kini memecah relasi Many-to-Many menjadi dua relasi 1:N yang aman dan memenuhi standar normalisasi!`, () => loadStage(5));
+      } else {
+        resetCombo();
+        showArcadeModal("❌ KONFIGURASI BELUM TEPAT", "Berikan nama tabel perantara yang bermakna (misal: 'siswa_ekskul') dan pilih opsi bahwa relasi terpecah menjadi 1:N!");
+      }
+    }
+
+    /* STAGE 5: BOSS FIGHT (The Spaghetti ERD) */
+    function renderStage5(container) {
+      gameState.bossTimeLeft = 60;
+      clearInterval(gameState.bossTimer);
+
+      container.innerHTML = `
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <!-- Boss Banner -->
+          <div class="flex justify-between items-center border-b-2 border-rose-300 pb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-rose-100 border-2 border-slate-900 flex items-center justify-center text-rose-600 animate-bounce font-bold">
+                <i class="fa-solid fa-skull"></i>
+              </div>
+              <div>
+                <span class="text-rose-700 font-arcade text-xs font-bold">BOSS: THE SPAGHETTI ERD MONSTER</span>
+                <p class="text-[11px] text-slate-600 font-bold">Database Rental Game hancur lebur! Perbaiki 3 dosa perancangan dalam 60 detik!</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] block text-slate-500 font-mono font-bold">TIME REMAINING:</span>
+              <span id="boss-timer" class="font-arcade text-rose-600 text-sm font-bold">60s</span>
+            </div>
+          </div>
+
+          <!-- Boss ERD Scenario Card -->
+          <div class="bg-rose-50/70 border-3 border-slate-900 p-4 rounded-xl space-y-2 relative overflow-hidden shadow-pixel-solid">
+            <div class="text-xs font-mono text-rose-800 flex items-center justify-between border-b border-rose-200 pb-1 font-bold">
+              <span>⚠️ TABEL KORBAN: 'RENTAL_GADO_GADO' (Semua jadi 1 tabel)</span>
+              <span class="animate-pulse text-rose-600">STATUS: KRITIS / ANOMALI</span>
+            </div>
+            <div class="bg-white p-2.5 rounded-lg text-[11px] font-mono text-slate-800 overflow-x-auto border-2 border-rose-200 font-bold">
+              KOLOM: [ id_rental, nama_member, no_ktp, alamat_member, judul_game, harga_sewa, tanggal_pinjam, tanggal_kembali, total_bayar, nama_kasir ]
+            </div>
+            <p class="text-xs text-slate-700 font-bold">
+              <b>Dampak Buruk:</b> Jika seorang member menyewa 5 game, data nama & alamatnya diduplikasi 5 kali (*Data Redundancy*). Jika member ganti alamat, update anomali akan merusak data lama!
+            </p>
+          </div>
+
+          <!-- Fix Checklist -->
+          <div class="bg-white border-3 border-slate-900 p-4 rounded-xl space-y-2 text-xs shadow-pixel-solid">
+            <span class="font-arcade text-emerald-800 text-[10px] block font-bold">PILIH TINDAKAN REFACTORING YANG BENAR (PILIH 3):</span>
+            
+            <label class="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border-2 border-slate-200 hover:border-emerald-500 cursor-pointer font-bold">
+              <input type="checkbox" id="boss-fix-1" class="accent-emerald-600 w-4 h-4">
+              <span>1. Pisahkan entitas <b>MEMBERS</b>, <b>GAMES</b>, dan <b>TRANSAKSI_RENTAL</b> ke tabel masing-masing.</span>
+            </label>
+
+            <label class="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border-2 border-slate-200 hover:border-emerald-500 cursor-pointer font-bold">
+              <input type="checkbox" id="boss-fix-2" class="accent-emerald-600 w-4 h-4">
+              <span>2. Buat Primary Key unik mutlak di tabel MEMBERS (misal: <code>member_id</code>) dan GAMES (<code>game_id</code>).</span>
+            </label>
+
+            <label class="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border-2 border-slate-200 hover:border-emerald-500 cursor-pointer font-bold">
+              <input type="checkbox" id="boss-fix-3" class="accent-emerald-600 w-4 h-4">
+              <span>3. Pasang Foreign Key <code>member_id</code> dan <code>game_id</code> di tabel TRANSAKSI_RENTAL.</span>
+            </label>
+
+            <label class="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border-2 border-slate-200 hover:border-rose-400 cursor-pointer text-rose-800 font-bold">
+              <input type="checkbox" id="boss-fix-bad" class="accent-rose-600 w-4 h-4">
+              <span>4. (Jebakan) Simpan saja semua transaksi dalam satu file TXT tanpa skema sama sekali.</span>
+            </label>
+          </div>
+
+          <div class="flex justify-end">
+            <button onclick="submitBossFight()" class="pixel-btn bg-rose-500 border-2 border-slate-900 text-white px-6 py-2.5 font-bold rounded-lg shadow-pixel-solid font-arcade text-xs hover:bg-rose-600">
+              ⚔️ SERANG BOSS SPAGHETTI!
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Start Countdown
+      gameState.bossTimer = setInterval(() => {
+        gameState.bossTimeLeft--;
+        const timerEl = document.getElementById('boss-timer');
+        if (timerEl) {
+          timerEl.innerText = `${gameState.bossTimeLeft}s`;
+          if (gameState.bossTimeLeft <= 15) {
+            timerEl.classList.add('text-rose-600', 'animate-ping');
+          }
+        }
+
+        if (gameState.bossTimeLeft <= 0) {
+          clearInterval(gameState.bossTimer);
+          RetroAudio.wrong();
+          if (gameState.credits > 0) {
+            gameState.credits--;
+            saveState();
+            showArcadeModal("💀 GAME OVER", "Spaghetti ERD menenggelamkan server rental! Kredit berkurang 1. Coba lagi!", () => loadStage(5));
+          } else {
+            showArcadeModal("💀 GAME OVER", "Koin habis! Klik '+INSERT' untuk menambah kredit!", () => loadStage(1));
+          }
+        }
+      }, 1000);
+    }
+
+    function submitBossFight() {
+      const f1 = document.getElementById('boss-fix-1').checked;
+      const f2 = document.getElementById('boss-fix-2').checked;
+      const f3 = document.getElementById('boss-fix-3').checked;
+      const bad = document.getElementById('boss-fix-bad').checked;
+
+      if (bad) {
+        RetroAudio.wrong();
+        showArcadeModal("💥 JEBAKAN TERPILIH!", "File TXT bukanlah database! Server meledak!");
+        return;
+      }
+
+      if (f1 && f2 && f3) {
+        clearInterval(gameState.bossTimer);
+        RetroAudio.victory();
+        addScore(1000);
+        gameState.trophies.spaghetti_slayer = true;
+        gameState.trophies.architect = true;
+        saveState();
+        showArcadeModal(
+          "🏆 BOSS DEFEATED & QUEST TAMAT!", 
+          "Selamat! Kamu berhasil menaklukkan seluruh 5 Stage ERD Arcade! Sertifikat kelulusan kehormatan telah diterbitkan untukmu!", 
+          () => {
+            switchTab('halloffame');
+            openCertificateModal();
+          }
+        );
+      } else {
+        resetCombo();
+        showArcadeModal("⚠️ BELUM SEMPURNA", "Pastikan memilih 3 perbaikan utama: pemisahan atribut, PK unik, dan penambahan FK!");
+      }
+    }
+
+    /* =========================================================
+       4. INTERACTIVE ERD SANDBOX SYSTEM
+       ========================================================= */
+    let sandboxNodes = [
+      { id: 'node-1', type: 'entity', title: 'PELANGGAN', x: 60, y: 70 },
+      { id: 'node-2', type: 'attribute', title: 'id_pelanggan (PK)', x: 60, y: 220 },
+      { id: 'node-3', type: 'relation', title: 'MELAKUKAN', x: 260, y: 70 },
+      { id: 'node-4', type: 'entity', title: 'PESANAN', x: 440, y: 70 }
+    ];
+
+    function initSandboxCanvas() {
+      renderSandboxNodes();
+      updateSandboxLines();
+    }
+
+    function renderSandboxNodes() {
+      const container = document.getElementById('sandbox-nodes');
+      if (!container) return;
+      container.innerHTML = '';
+
+      sandboxNodes.forEach(node => {
+        const el = document.createElement('div');
+        el.id = node.id;
+        el.className = 'absolute cursor-grab active:cursor-grabbing select-none text-xs';
+        el.style.left = `${node.x}px`;
+        el.style.top = `${node.y}px`;
+
+        if (node.type === 'entity') {
+          el.innerHTML = `
+            <div class="bg-amber-100 border-2 border-slate-900 px-3 py-2 rounded-lg text-amber-950 font-arcade text-[10px] shadow-pixel-solid flex items-center gap-1.5 font-bold group">
+              <i class="fa-regular fa-square"></i>
+              <span ondblclick="sandboxEditNode('${node.id}')" title="Klik ganda untuk edit nama" class="cursor-pointer hover:underline underline-offset-2">${node.title}</span>
+              <button onclick="sandboxEditNode('${node.id}')" title="Ubah Nama" class="text-amber-800 hover:text-amber-950 ml-1 text-xs">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="sandboxRemoveNode('${node.id}')" title="Hapus Node" class="text-rose-600 hover:text-rose-800 ml-0.5 font-bold text-sm">×</button>
+            </div>
+          `;
+        } else if (node.type === 'attribute') {
+          el.innerHTML = `
+            <div class="bg-sky-100 border-2 border-slate-900 px-3 py-1.5 rounded-full text-sky-950 font-mono text-[11px] shadow-pixel-solid flex items-center gap-1 font-bold group">
+              <i class="fa-regular fa-circle text-[8px]"></i>
+              <span ondblclick="sandboxEditNode('${node.id}')" title="Klik ganda untuk edit nama" class="cursor-pointer hover:underline underline-offset-2">${node.title}</span>
+              <button onclick="sandboxEditNode('${node.id}')" title="Ubah Nama" class="text-sky-800 hover:text-sky-950 ml-1 text-[11px]">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="sandboxRemoveNode('${node.id}')" title="Hapus Node" class="text-rose-600 hover:text-rose-800 ml-0.5 font-bold text-sm">×</button>
+            </div>
+          `;
+        } else if (node.type === 'relation') {
+          el.innerHTML = `
+            <div class="bg-pink-100 border-2 border-slate-900 px-3 py-1.5 rounded-lg text-pink-950 font-arcade text-[9px] shadow-pixel-solid flex items-center gap-1 font-bold group">
+              <i class="fa-solid fa-diamond text-[8px]"></i>
+              <span ondblclick="sandboxEditNode('${node.id}')" title="Klik ganda untuk edit nama" class="cursor-pointer hover:underline underline-offset-2">${node.title}</span>
+              <button onclick="sandboxEditNode('${node.id}')" title="Ubah Nama" class="text-pink-800 hover:text-pink-950 ml-1 text-[10px]">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="sandboxRemoveNode('${node.id}')" title="Hapus Node" class="text-rose-600 hover:text-rose-800 ml-0.5 font-bold text-sm">×</button>
+            </div>
+          `;
+        }
+
+        makeDraggable(el, node);
+        container.appendChild(el);
+      });
+
+      updateSandboxLines();
+    }
+
+    function sandboxEditNode(nodeId) {
+      RetroAudio.playTone(620, 0.05);
+      const targetNode = sandboxNodes.find(n => n.id === nodeId);
+      if (!targetNode) return;
+
+      const currentTitle = targetNode.title;
+      const labelType = targetNode.type === 'entity' ? 'Entitas' : targetNode.type === 'attribute' ? 'Atribut' : 'Relasi';
+      
+      const newTitle = prompt(`Ubah Nama ${labelType}:`, currentTitle);
+      if (newTitle !== null && newTitle.trim().length > 0) {
+        targetNode.title = newTitle.trim();
+        renderSandboxNodes();
+        showArcadeToast(`NAMA BERUBAH: ${targetNode.title}`);
+      }
+    }
+
+    function makeDraggable(el, nodeData) {
+      let isDragging = false;
+      let startX, startY;
+
+      const onMouseDown = (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        isDragging = true;
+        startX = e.clientX - nodeData.x;
+        startY = e.clientY - nodeData.y;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      };
+
+      const onMouseMove = (e) => {
+        if (!isDragging) return;
+        const container = document.getElementById('sandbox-canvas-container');
+        const rect = container.getBoundingClientRect();
+        
+        let newX = e.clientX - startX;
+        let newY = e.clientY - startY;
+
+        newX = Math.max(10, Math.min(newX, rect.width - 150));
+        newY = Math.max(10, Math.min(newY, rect.height - 60));
+
+        nodeData.x = newX;
+        nodeData.y = newY;
+        el.style.left = `${newX}px`;
+        el.style.top = `${newY}px`;
+        updateSandboxLines();
+      };
+
+      const onMouseUp = () => {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
+      el.addEventListener('mousedown', onMouseDown);
+    }
+
+    function updateSandboxLines() {
+      const svg = document.getElementById('sandbox-svg');
+      if (!svg) return;
+      svg.innerHTML = '';
+
+      for (let i = 0; i < sandboxNodes.length - 1; i++) {
+        const n1 = sandboxNodes[i];
+        const n2 = sandboxNodes[i + 1];
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', n1.x + 50);
+        line.setAttribute('y1', n1.y + 20);
+        line.setAttribute('x2', n2.x + 50);
+        line.setAttribute('y2', n2.y + 20);
+        line.setAttribute('stroke', '#e60067');
+        line.setAttribute('stroke-width', '2.5');
+        line.setAttribute('stroke-dasharray', '4');
+        svg.appendChild(line);
+      }
+    }
+
+    function sandboxAddNode(type) {
+      RetroAudio.playTone(500, 0.05);
+      const id = `node-${Date.now()}`;
+      let title = "BARU";
+
+      if (type === 'entity') title = promptNodeTitle("Nama Entitas:", "PRODUK");
+      else if (type === 'attribute') title = promptNodeTitle("Nama Atribut:", "harga_satuan");
+      else if (type === 'relation') title = promptNodeTitle("Nama Relasi:", "MEMILIKI");
+
+      if (!title) return;
+
+      sandboxNodes.push({
+        id,
+        type,
+        title,
+        x: 100 + (sandboxNodes.length * 20) % 250,
+        y: 100 + (sandboxNodes.length * 25) % 180
+      });
+
+      renderSandboxNodes();
+      showArcadeToast(`+1 ${type.toUpperCase()} DITAMBAHKAN`);
+    }
+
+    function promptNodeTitle(promptText, defaultVal) {
+      const res = prompt(promptText, defaultVal);
+      return res ? res.trim().toUpperCase() : defaultVal;
+    }
+
+    function sandboxRemoveNode(nodeId) {
+      RetroAudio.playTone(250, 0.05);
+      sandboxNodes = sandboxNodes.filter(n => n.id !== nodeId);
+      renderSandboxNodes();
+    }
+
+    function sandboxClearCanvas() {
+      showArcadeModal("RESET KANVAS?", "Semua entitas dan relasi yang belum disimpan akan dikosongkan.", () => {
+        RetroAudio.playTone(300, 0.1);
+        sandboxNodes = [];
+        renderSandboxNodes();
+      }, true);
+    }
+
+    function sandboxValidateERD() {
+      const entCount = sandboxNodes.filter(n => n.type === 'entity').length;
+      const relCount = sandboxNodes.filter(n => n.type === 'relation').length;
+
+      if (entCount >= 2 && relCount >= 1) {
+        RetroAudio.victory();
+        addScore(250);
+        showArcadeToast("ERD VALID! Skema memiliki entitas dan konektor relasi lengkap!");
+        showArcadeModal("🎉 VALIDASI SUKSES", "Skema memiliki minimal 2 Entitas berelasi dan memenuhi struktur dasar ERD!");
+      } else {
+        RetroAudio.wrong();
+        showArcadeModal("⚠️ VALIDASI PERINGATAN", "Buat minimal 2 Entitas dan 1 Relasi untuk menghasilkan model relasional yang valid!");
+      }
+    }
+
+    function sandboxExportSQL() {
+      RetroAudio.correct();
+      const entities = sandboxNodes.filter(n => n.type === 'entity');
+      
+      if (entities.length === 0) {
+        showArcadeModal("INFO", "Tambahkan minimal 1 entitas untuk digenerate ke SQL DDL!");
+        return;
+      }
+
+      let ddl = `-- GENERATED BY ERD ARCADE ARCHITECT\n`;
+      entities.forEach(ent => {
+        const tbl = ent.title.toLowerCase().replace(/\s+/g, '_');
+        ddl += `CREATE TABLE ${tbl} (\n`;
+        ddl += `    id_${tbl} INT PRIMARY KEY AUTO_INCREMENT,\n`;
+        ddl += `    nama VARCHAR(100) NOT NULL,\n`;
+        ddl += `    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n`;
+        ddl += `);\n\n`;
+      });
+
+      showArcadeModal("SQL CREATE TABLE (DDL)", ddl);
+    }
+
+    /* =========================================================
+       5. TROPHY HALL OF FAME
+       ========================================================= */
+    const trophyMetadata = [
+      { id: 'catcher', name: 'THE DATA CATCHER', desc: 'Selesaikan Stage 1: Klasifikasi Entitas, Atribut & Nilai.' },
+      { id: 'keymaster', name: 'KEY MASTER', desc: 'Selesaikan Stage 2: Kuasai Primary Key dan Foreign Key.' },
+      { id: 'linker', name: 'CARDO LINKER', desc: 'Selesaikan Stage 3: Kuasai kardinalitas 1:1, 1:N, dan M:N.' },
+      { id: 'junction_hero', name: 'JUNCTION HERO', desc: 'Selesaikan Stage 4: Pecahkan relasi Many-to-Many.' },
+      { id: 'spaghetti_slayer', name: 'SPAGHETTI SLAYER', desc: 'Selesaikan Stage 5: Kalahkan Boss Spaghetti ERD.' },
+      { id: 'architect', name: 'GRAND ERD ARCHITECT', desc: 'Selesaikan seluruh quest perancangan database.' }
+    ];
+
+    function renderTrophies() {
+      const grid = document.getElementById('trophy-grid');
+      grid.innerHTML = '';
+
+      const allCompleted = Object.values(gameState.trophies).every(v => v === true);
+      const btnCert = document.getElementById('btn-open-cert');
+      if (btnCert) {
+        if (allCompleted || gameState.trophies.architect) {
+          btnCert.classList.remove('hidden');
+        } else {
+          btnCert.classList.add('hidden');
+        }
+      }
+
+      trophyMetadata.forEach(trophy => {
+        const unlocked = gameState.trophies[trophy.id];
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl border-3 transition-all ${
+          unlocked 
+            ? 'bg-amber-50/70 border-slate-900 shadow-pixel-solid' 
+            : 'bg-white border-slate-200 opacity-60'
+        }`;
+        card.innerHTML = `
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-lg border-2 border-slate-900 flex items-center justify-center text-lg ${
+              unlocked ? 'bg-amber-300 text-slate-900' : 'bg-slate-100 text-slate-400 border-slate-300'
+            }">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div>
+              <h4 class="font-arcade text-[10px] ${unlocked ? 'text-slate-900 font-bold' : 'text-slate-500'}">${trophy.name}</h4>
+              <span class="text-[9px] font-mono font-bold ${unlocked ? 'text-emerald-700' : 'text-slate-400'}">
+                ${unlocked ? 'UNLOCKED ✨' : 'LOCKED 🔒'}
+              </span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-600 font-vt leading-tight font-bold">${trophy.desc}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* Modal Utility Function */
+    function showArcadeModal(title, message, onConfirm = null, isConfirm = false) {
+      const modal = document.getElementById('arcade-modal');
+      const titleEl = document.getElementById('modal-title');
+      const bodyEl = document.getElementById('modal-body');
+      const btnOk = document.getElementById('modal-btn-ok');
+      const btnCancel = document.getElementById('modal-btn-cancel');
+
+      titleEl.innerText = title;
+      bodyEl.innerText = message;
+
+      if (isConfirm) {
+        btnCancel.classList.remove('hidden');
+        btnCancel.onclick = () => {
+          modal.classList.add('hidden');
+        };
+      } else {
+        btnCancel.classList.add('hidden');
+      }
+
+      btnOk.onclick = () => {
+        modal.classList.add('hidden');
+        if (onConfirm) onConfirm();
+      };
+
+      modal.classList.remove('hidden');
+    }
+
+    /* Modal Credit Teknik Informatika UNPAS */
+    function openCreditModal() {
+      RetroAudio.playTone(880, 0.08, 'triangle', 0.15);
+      setTimeout(() => RetroAudio.playTone(1174.66, 0.12, 'square', 0.15), 90);
+      const modal = document.getElementById('credit-author-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeCreditModal() {
+      RetroAudio.playTone(440, 0.06);
+      const modal = document.getElementById('credit-author-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    /* Modal & Handler Sertifikat Kelulusan */
+    function openCertificateModal() {
+      RetroAudio.victory();
+      const modal = document.getElementById('certificate-modal');
+      if (!modal) return;
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      document.getElementById('cert-date').innerText = dateStr;
+      document.getElementById('cert-score').innerText = `${String(gameState.score).padStart(6, '0')} PTS`;
+      document.getElementById('cert-id').innerText = `ERD-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeCertificateModal() {
+      RetroAudio.playTone(440, 0.06);
+      const modal = document.getElementById('certificate-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateCertificateRecipient(newName) {
+      const display = document.getElementById('cert-display-name');
+      if (display) {
+        display.innerText = newName.trim() ? newName.toUpperCase() : 'DATA ARCHITECT HERO';
+      }
+    }
+
+    function printCertificate() {
+      RetroAudio.playTone(659.25, 0.1);
+      window.print();
+    }
+
+    /* Initial Game Bootstrap */
+    window.onload = function() {
+      loadSavedState();
+      renderStageStepper();
+      loadStage(1);
+    };
+  </script>
+</body>
+</html>
