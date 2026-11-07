@@ -1,0 +1,279 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+/* =========================
+   GLOBAL RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f5f5;
+    color: #222;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+h1,h2,h3 {
+  font-family: "Playfair Display"
+}
+
+/* =========================
+   HEADER
+========================= */
+header {
+    text-align: center;
+    margin: 20px auto 35px;
+    padding: 25px;
+    background-color: black;
+    border-radius: 12px;
+}
+
+header h1 {
+    font-size: 42px;
+    margin-bottom: 12px;
+    color: white;
+}
+
+.genre-tags {
+    margin-top: 15px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #06b6d4;
+    color: white;
+    padding: 7px 18px;
+    margin: 5px;
+    border-radius: 25px;
+    font-size: 14px;
+}
+
+/* =========================
+   PROFILE CARD
+========================= */
+.profile-card {
+    background-color: white;
+    max-width: 850px;
+    margin: 0 auto 40px;
+    padding: 35px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.artist-photo {
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 6px solid #06b6d4;
+    margin-bottom: 15px;
+}
+
+.artist-name {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.artist-role {
+    color: #06b6d4;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.bio {
+    max-width: 700px;
+    margin: 0 auto 25px;
+    text-align: justify;
+}
+
+.bio p {
+    margin-bottom: 15px;
+}
+
+/* =========================
+   STATISTICS
+========================= */
+.stats {
+    display: inline-block;
+    width: 30%;
+    vertical-align: top;
+    margin: 10px 1%;
+}
+
+.stat-item {
+    background-color: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 20px 10px;
+    min-height: 110px;
+}
+
+.stat-value {
+    display: block;
+    color: #06b6d4;
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #555;
+}
+
+/* =========================
+   DISCOGRAPHY
+========================= */
+.discography {
+    max-width: 1000px;
+    margin: 0 auto 40px;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.discography h2 {
+    font-size: 30px;
+    margin-bottom: 25px;
+}
+
+.album-list {
+    text-align: center;
+}
+
+.album-card {
+    display: inline-block;
+    vertical-align: top;
+    width: 28%;
+    margin: 10px 1%;
+    padding: 18px;
+    background-color: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+}
+
+.album-card img {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.album-card h3 {
+    font-size: 17px;
+    margin-bottom: 8px;
+}
+
+.album-card p {
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.btn-listen {
+    display: inline-block;
+    background-color: #06b6d4;
+    color: white;
+    text-decoration: none;
+    padding: 9px 20px;
+    border-radius: 25px;
+    margin-top: 5px;
+}
+
+.btn-listen:hover {
+    background-color: #0891b2;
+}
+
+/* =========================
+   SOCIAL LINKS
+========================= */
+.social-links {
+    text-align: center;
+    margin: 30px auto 40px;
+    padding: 25px;
+}
+
+.social-links h2 {
+    font-size: 27px;
+    margin-bottom: 18px;
+    color: #222;
+}
+
+.social-btn {
+    display: inline-block;
+    background-color: #06b6d4;
+    color: white;
+    text-decoration: none;
+    padding: 10px 22px;
+    margin: 6px;
+    border-radius: 25px;
+}
+
+.social-btn:hover {
+    background-color: #0891b2;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.main-footer {
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+    margin-top: 30px;
+    border-radius: 10px;
+}
+
+.main-footer p {
+    margin: 5px;
+}
+
+.main-footer a {
+    color: #06b6d4;
+    text-decoration: none;
+}
+
+.main-footer a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media screen and (max-width: 600px) {
+
+    body {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 34px;
+    }
+
+    .profile-card {
+        padding: 20px;
+    }
+
+    .stats {
+        width: 90%;
+        margin: 8px auto;
+    }
+
+    .album-card {
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    .album-card img {
+        height: 220px;
+    }
+
+    .social-btn {
+        padding: 9px 15px;
+        font-size: 14px;
+    }
+}
